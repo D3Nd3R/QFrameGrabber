@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 project(libframegrabber VERSION 1.0.0 LANGUAGES CXX)
 
-# https://github.com/pabloariasal/modern-cmake-sample/blob/master/libjsonutils/CMakeLists.txt
-
 message(TRACE "========= Start configure: ${PROJECT_NAME}")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -11,16 +9,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+
 set(header_interface
         include/qframgrabber/Buffer.hpp
         include/qframgrabber/Types.hpp
+        include/qframgrabber/QFrameProvider.hpp
 )
 
 set(src
-    src/FrameGrabberImpl.cpp
+        src/FrameGrabberImpl.cpp
+        src/QFrameProvider.cpp
 )
-
-
 
 
 add_library(framegrabber
@@ -42,9 +43,9 @@ target_compile_options(framegrabber PRIVATE
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
         -Wall -Wextra -Wpedantic>)
 
-target_link_libraries(framegrabber
-        PRIVATE ${OpenCV_LIBS}
-
+target_link_libraries(framegrabber PRIVATE
+        ${OpenCV_LIBS}
+        Qt${QT_VERSION_MAJOR}::Core
 )
 
 include(GNUInstallDirs)
