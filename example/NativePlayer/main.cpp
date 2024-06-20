@@ -11,6 +11,7 @@ int main()
 
     while (true)
     {
+        // rtsp://admin:rootroot1@192.168.1.108:554/
         auto frame = buffer->WaitPop(std::chrono::milliseconds { 1 });
         if (!frame)
             continue;
