@@ -4,6 +4,8 @@
 
 #include <opencv2/core/core.hpp>
 
+#include <QDebug>
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -13,6 +15,7 @@ MainWindow::MainWindow(QWidget* parent)
     _frameProvider.Start();
 
     connect(&_frameProvider, &frame_grabber::QFrameProvider::SendFrame, this, &MainWindow::OnRcvFrame);
+
 }
 
 MainWindow::~MainWindow()
@@ -20,4 +23,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::OnRcvFrame(QString) {}
+void MainWindow::OnRcvFrame(cv::Mat)
+{
+    qDebug() << "MainWindow::OnRcvFrame";
+}

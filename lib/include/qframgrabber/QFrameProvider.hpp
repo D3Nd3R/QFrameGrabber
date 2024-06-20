@@ -23,7 +23,7 @@ public:
     void Stop();
 
 signals:
-    void SendFrame(QString);
+    void SendFrame(cv::Mat);
 
 private:
     using BufferT = std::shared_ptr<frame_grabber::threads::utils::Buffer<cv::Mat>>;

@@ -24,7 +24,7 @@ public:
 
 public slots:
 
-    void OnRcvFrame(QString);
+    void OnRcvFrame(cv::Mat);
 
 private:
     Ui::MainWindow* ui;

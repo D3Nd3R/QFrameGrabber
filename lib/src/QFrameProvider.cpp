@@ -22,8 +22,7 @@ void QFrameProvider::run()
         auto frame = _buffer->WaitPop(std::chrono::milliseconds { 1 });
         if (!frame)
             continue;
-        //emit SendFrame(*frame);
-        emit SendFrame(QString{"blat"});
+        emit SendFrame(*frame);
     }
 }
 
@@ -34,7 +33,11 @@ bool QFrameProvider::Start()
 
     _frameGrabber->SetBuffer(_buffer);
     _isWorking = true;
-    return _frameGrabber->Start();
+    if (_frameGrabber->Start())
+    {
+        start();
+    }
+    return false;
 }
 
 void QFrameProvider::Stop()
