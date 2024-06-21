@@ -6,7 +6,6 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/videoio/videoio.hpp>
 
-
 namespace frame_grabber::impl
 {
 

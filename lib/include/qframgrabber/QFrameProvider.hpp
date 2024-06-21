@@ -2,6 +2,7 @@
 #include "Types.hpp"
 
 #include <qframgrabber/Buffer.hpp>
+
 #include <opencv2/core/core.hpp>
 
 #include <QThread>
