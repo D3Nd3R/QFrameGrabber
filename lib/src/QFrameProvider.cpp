@@ -46,6 +46,7 @@ void QFrameProvider::Stop()
         _frameGrabber->Stop();
 
     _isWorking = false;
+    this->wait();
 }
 
 } // namespace frame_grabber

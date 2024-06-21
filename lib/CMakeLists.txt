@@ -13,18 +13,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui)
 
 set(header_interface
         include/qframgrabber/Buffer.hpp
         include/qframgrabber/Types.hpp
         include/qframgrabber/QFrameProvider.hpp
+        include/qframgrabber/Utils.hpp
 )
 
 set(src
         src/FrameGrabberImpl.cpp
         src/QFrameProvider.cpp
+        src/Utils.cpp
 )
 
 
@@ -50,6 +52,7 @@ target_compile_options(framegrabber PRIVATE
 target_link_libraries(framegrabber PRIVATE
         ${OpenCV_LIBS}
         Qt${QT_VERSION_MAJOR}::Core
+        Qt${QT_VERSION_MAJOR}::Gui
 )
 
 include(GNUInstallDirs)

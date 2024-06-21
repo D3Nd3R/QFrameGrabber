@@ -3,6 +3,8 @@
 
 #include <qframgrabber/QFrameProvider.hpp>
 
+#include <QLabel>
+#include <QLayout>
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -14,13 +16,13 @@ class MainWindow;
 
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+class MainWindow final : public QMainWindow
 {
     Q_OBJECT
 
 public:
     MainWindow(QWidget* parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
 public slots:
 

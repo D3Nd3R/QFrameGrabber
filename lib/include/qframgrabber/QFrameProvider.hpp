@@ -18,7 +18,7 @@ class QFrameProvider final : public QThread
     Q_OBJECT
 public:
     explicit QFrameProvider(InputInfo&& inputInfo);
-    virtual ~QFrameProvider();
+    ~QFrameProvider() override;
     bool Start();
     void Stop();
 
