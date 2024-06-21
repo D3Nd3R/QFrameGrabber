@@ -7,7 +7,7 @@
 namespace
 {
 
-constexpr std::chrono::microseconds reconnetcInterval { 500 };
+constexpr std::chrono::milliseconds reconnetcInterval { 500 };
 constexpr int32_t maxBadFrames { 10 };
 } // namespace
 
