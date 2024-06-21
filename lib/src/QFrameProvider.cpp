@@ -49,4 +49,23 @@ void QFrameProvider::Stop()
     this->wait();
 }
 
+bool QFrameProvider::IsWorking() const noexcept
+{
+    return _isWorking;
+}
+
+bool QFrameProvider::Start(InputInfo&& inputInfo)
+{
+    if (!_frameGrabber || !_buffer)
+        return false;
+
+    _frameGrabber->SetBuffer(_buffer);
+    _isWorking = true;
+    if (_frameGrabber->Start(std::move(inputInfo)))
+    {
+        start();
+    }
+    return false;
+}
+
 } // namespace frame_grabber

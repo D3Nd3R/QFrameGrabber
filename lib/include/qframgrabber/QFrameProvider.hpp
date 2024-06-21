@@ -22,6 +22,10 @@ public:
     bool Start();
     void Stop();
 
+    bool IsWorking() const noexcept;
+
+    bool Start(InputInfo&& inputInfo);
+
 signals:
     void SendFrame(cv::Mat);
 

@@ -3,7 +3,6 @@
 
 #include <qframgrabber/QFrameProvider.hpp>
 
-#include <QLabel>
 #include <QLayout>
 #include <QMainWindow>
 
@@ -27,6 +26,8 @@ public:
 public slots:
 
     void OnRcvFrame(cv::Mat);
+
+    void on_button_clicked();
 
 private:
     Ui::MainWindow* ui;

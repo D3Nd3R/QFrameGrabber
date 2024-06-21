@@ -17,10 +17,13 @@ public:
 
 public:
     explicit FrameGrabberImpl(InputInfo inputInfo);
+    explicit FrameGrabberImpl();
     ~FrameGrabberImpl();
+
     void SetBuffer(BufferT buffer);
 
     bool Start();
+    bool Start(InputInfo&& inputInfo);
     void Stop();
 
 private:

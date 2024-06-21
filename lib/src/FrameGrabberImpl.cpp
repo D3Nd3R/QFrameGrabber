@@ -1,5 +1,7 @@
 #include "FrameGrabberImpl.hpp"
 
+#include <qframgrabber/MetaUtils.hpp>
+
 #include <iostream>
 
 namespace
@@ -14,6 +16,15 @@ namespace frame_grabber::impl
 FrameGrabberImpl::FrameGrabberImpl(InputInfo inputInfo)
     : _inputInfo { std::move(inputInfo) }
 {
+}
+
+FrameGrabberImpl::FrameGrabberImpl() {}
+
+bool FrameGrabberImpl::Start(InputInfo&& inputInfo)
+{
+    Stop();
+    _inputInfo = std::move(inputInfo);
+    return Start();
 }
 
 FrameGrabberImpl::~FrameGrabberImpl()
@@ -76,18 +87,19 @@ void FrameGrabberImpl::Worker()
 
 bool FrameGrabberImpl::Reconnect()
 {
-    return std::visit(
-        [this](const auto& input) -> bool
-        {
-            _videoCapture.release();
+    return std::visit(meta::utils::Overload { [this](const auto& input) -> bool
+                                              {
+                                                  _videoCapture.release();
 
-            if (_videoCapture.open(input))
-                return true;
+                                                  if (_videoCapture.open(input))
+                                                      return true;
 
-            std::cerr << "FrameGrabberImpl::Reconnect unable to open: " << input << std::endl;
-            return false;
-        },
-        _inputInfo);
+                                                  std::cerr << "FrameGrabberImpl::Reconnect unable to open: " << input
+                                                            << std::endl;
+                                                  return false;
+                                              },
+                                              [](std::monostate) { return false; } },
+                      _inputInfo);
 }
 } // namespace frame_grabber::impl
 
