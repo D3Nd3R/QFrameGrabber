@@ -26,6 +26,7 @@ public:
 public slots:
 
     void OnRcvFrame(cv::Mat);
+    void OnRcvImage(QImage);
 
     void on_button_clicked();
 

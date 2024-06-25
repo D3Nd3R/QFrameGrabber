@@ -30,7 +30,7 @@
      </layout>
     </item>
     <item row="1" column="0">
-     <widget class="QLabel" name="label">
+     <widget class="QImageViewer" name="label">
       <property name="text">
        <string>TextLabel</string>
       </property>
@@ -50,6 +50,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QImageViewer</class>
+   <extends>QLabel</extends>
+   <header location="global">qframgrabber/QImageViewer.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

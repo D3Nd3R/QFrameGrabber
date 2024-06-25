@@ -1,6 +1,9 @@
 #include "FrameGrabberImpl.hpp"
 
 #include <qframgrabber/QFrameProvider.hpp>
+#include <qframgrabber/Utils.hpp>
+
+#include <opencv2/imgproc.hpp>
 
 namespace frame_grabber
 {
@@ -22,7 +25,15 @@ void QFrameProvider::run()
         auto frame = _buffer->WaitPop(std::chrono::milliseconds { 1 });
         if (!frame)
             continue;
-        emit SendFrame(*frame);
+
+        if (IsSendCvMat())
+            emit SendFrame(*frame);
+
+        if (IsSendQImage())
+        {
+            cv::cvtColor(*frame, *frame, cv::COLOR_BGR2RGB);
+            emit SendImage(frame_grabber::utils::CvMat2QImage(*frame));
+        }
     }
 }
 
@@ -65,6 +76,26 @@ bool QFrameProvider::Start(InputInfo&& inputInfo)
         start();
 
     return false;
+}
+
+bool QFrameProvider::IsSendQImage() const
+{
+    return _isSendQImage;
+}
+
+void QFrameProvider::SetSendQImage(const bool newIsSendQImage)
+{
+    _isSendQImage = newIsSendQImage;
+}
+
+bool QFrameProvider::IsSendCvMat() const
+{
+    return _isSendCvMat;
+}
+
+void QFrameProvider::SetSendCvMat(const bool newIsSendCvMat)
+{
+    _isSendCvMat = newIsSendCvMat;
 }
 
 } // namespace frame_grabber

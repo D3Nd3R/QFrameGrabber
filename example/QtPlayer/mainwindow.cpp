@@ -15,11 +15,11 @@ MainWindow::MainWindow(QWidget* parent)
 {
     ui->setupUi(this);
 
-    //_frameProvider.Start();
-
     ui->button->setText("Start");
+    _frameProvider.SetSendQImage(true);
 
-    connect(&_frameProvider, &frame_grabber::QFrameProvider::SendFrame, this, &MainWindow::OnRcvFrame);
+    // connect(&_frameProvider, &frame_grabber::QFrameProvider::SendFrame, this, &MainWindow::OnRcvFrame);
+    connect(&_frameProvider, &frame_grabber::QFrameProvider::SendImage, this, &MainWindow::OnRcvImage);
 }
 
 MainWindow::~MainWindow()
@@ -30,8 +30,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::OnRcvFrame(cv::Mat frame)
 {
-    // qDebug() << "MainWindow::OnRcvFrame";
-
     if (frame.size() == cv::Size { 0, 0 })
     {
         qWarning() << "MainWindow::OnRcvFrame. rcv empty frame";
@@ -40,18 +38,21 @@ void MainWindow::OnRcvFrame(cv::Mat frame)
 
     cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
 
-    ui->label->setPixmap(
-        QPixmap::fromImage(frame_grabber::utils::CvMat2QImage(frame)).scaled(ui->label->size(), Qt::KeepAspectRatio));
+    ui->label->SetPixmap(QPixmap::fromImage(frame_grabber::utils::CvMat2QImage(frame)));
+}
+
+void MainWindow::OnRcvImage(QImage image)
+{
+    ui->label->SetPixmap(QPixmap::fromImage(image));
 }
 
 void MainWindow::on_button_clicked()
 {
     qDebug() << "MainWindow::on_button_clicked";
 
-    auto input = ui->lineEdit->text();
+    const auto input = ui->lineEdit->text();
 
-    QRegExp re("\\d*");
-    if (re.exactMatch(input))
+    if (const QRegExp re("\\d*"); re.exactMatch(input))
     {
         bool isInt { false };
         int src = input.toInt(&isInt);
