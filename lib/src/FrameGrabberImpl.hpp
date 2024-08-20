@@ -6,6 +6,9 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/videoio/videoio.hpp>
 
+#include <atomic>
+#include <thread>
+
 namespace frame_grabber::impl
 {
 
