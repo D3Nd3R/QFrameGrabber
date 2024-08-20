@@ -72,7 +72,7 @@ void FrameGrabberImpl::Worker()
             if (!_videoCapture.isOpened()) [[unlikely]]
                 break;
 
-            if (cv::Mat frame; _videoCapture.read(frame)) [[likely]]
+            if (cv::Mat frame; _videoCapture.read(frame)) // cpp20[[likely]]
             {
                 _badFrameCounter = maxBadFrames;
                 _buffer->Emplace(std::move(frame));
