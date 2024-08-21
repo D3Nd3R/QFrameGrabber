@@ -58,7 +58,8 @@ void FrameGrabberImpl::Stop()
 
 void FrameGrabberImpl::Worker()
 {
-
+    // TODO: add to settings
+    setenv("OPENCV_FFMPEG_CAPTURE_OPTIONS","rtsp_transport;tcp|fflags;nobuffer|flags;low_delay",1);
     while (_isWorking)
     {
         _badFrameCounter = maxBadFrames;
