@@ -24,7 +24,6 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-
     delete ui;
 }
 
@@ -38,7 +37,7 @@ void MainWindow::OnRcvFrame(cv::Mat frame)
 
     cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
 
-    ui->label->SetPixmap(QPixmap::fromImage(frame_grabber::utils::CvMat2QImage(frame)));
+    ui->label->SetPixmap(QPixmap::fromImage(frame_grabber::utils::DeepCopy(frame_grabber::utils::CvMat2QImage(frame))));
 }
 
 void MainWindow::OnRcvImage(QImage image)

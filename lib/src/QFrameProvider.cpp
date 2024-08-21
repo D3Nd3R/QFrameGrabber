@@ -32,7 +32,7 @@ void QFrameProvider::run()
         if (IsSendQImage())
         {
             cv::cvtColor(*frame, *frame, cv::COLOR_BGR2RGB);
-            emit SendImage(frame_grabber::utils::CvMat2QImage(*frame));
+            emit SendImage(utils::DeepCopy(utils::CvMat2QImage(*frame)));
         }
     }
 }

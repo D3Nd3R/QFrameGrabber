@@ -21,4 +21,9 @@ QImage CvMat2QImage(const cv::Mat& mat)
             return {};
     }
 }
+
+QImage DeepCopy(const QImage& image)
+{
+    return image.copy();
+}
 } // namespace frame_grabber::utils
