@@ -56,6 +56,11 @@ void FrameGrabberImpl::Stop()
         _workTh.join();
 }
 
+bool FrameGrabberImpl::IsConnected() const
+{
+    return _videoCapture.isOpened();
+}
+
 void FrameGrabberImpl::Worker()
 {
     // TODO: add to settings

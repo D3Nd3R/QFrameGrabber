@@ -11,6 +11,7 @@ QFrameProvider::QFrameProvider(InputInfo&& inputInfo)
     : _frameGrabber { std::make_unique<impl::FrameGrabberImpl>(inputInfo) }
     , _buffer { std::make_shared<BufferT::element_type>() }
 {
+    PrepareDefaultImages();
 }
 
 QFrameProvider::~QFrameProvider()
@@ -24,7 +25,14 @@ void QFrameProvider::run()
     {
         auto frame = _buffer->WaitPop(std::chrono::milliseconds { 1 });
         if (!frame)
-            continue;
+        {
+            if (_frameGrabber->IsConnected())
+                continue;
+
+            frame = SendReconImg();
+            if (frame->empty())
+                continue;
+        }
 
         if (IsSendCvMat())
             emit SendFrame(*frame);
@@ -35,6 +43,45 @@ void QFrameProvider::run()
             emit SendImage(utils::DeepCopy(utils::CvMat2QImage(*frame)));
         }
     }
+}
+
+void QFrameProvider::PrepareDefaultImages()
+{
+    size_t cnt { 0 };
+    for (auto& img : _defaultMat)
+    {
+        img = cv::Mat::zeros(cv::Size(1280, 960), CV_8UC3);
+        cv::putText(img, std::to_string(++cnt), cv::Point { 100, 100 }, cv::FONT_HERSHEY_PLAIN, 5,
+                    cv::Scalar(255, 255, 255));
+    }
+}
+
+cv::Mat QFrameProvider::SendReconImg()
+{
+    cv::Mat res;
+
+    switch (_reconCounter)
+    {
+        case 0:
+            res = _defaultMat[0];
+            ++_reconCounter;
+            break;
+        case 500:
+            res = _defaultMat[1];
+            ++_reconCounter;
+            break;
+        case 1000:
+            res = _defaultMat[2];
+            ++_reconCounter;
+            break;
+        case 1500:
+            _reconCounter = 0;
+            break;
+        default:
+            ++_reconCounter;
+            break;
+    }
+    return res;
 }
 
 bool QFrameProvider::Start()
@@ -70,12 +117,14 @@ bool QFrameProvider::Start(InputInfo&& inputInfo)
     if (!_frameGrabber || !_buffer)
         return false;
 
+    Stop();
+
     _frameGrabber->SetBuffer(_buffer);
     _isWorking = true;
     if (_frameGrabber->Start(std::move(inputInfo)))
         start();
 
-    return false;
+    return true;
 }
 
 bool QFrameProvider::IsSendQImage() const
