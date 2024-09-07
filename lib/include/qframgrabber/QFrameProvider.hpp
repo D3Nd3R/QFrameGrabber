@@ -5,8 +5,8 @@
 
 #include <opencv2/core/core.hpp>
 
-#include <QThread>
 #include <QImage>
+#include <QThread>
 
 namespace frame_grabber
 {
@@ -48,14 +48,21 @@ private:
 
     void run() override;
 
+    void PrepareDefaultImages();
+
+    cv::Mat SendReconImg();
+
 private:
     std::unique_ptr<impl::FrameGrabberImpl> _frameGrabber { nullptr };
     std::atomic_bool _isWorking { false };
     BufferT _buffer;
-    bool _isSendQImage{false};
-    bool _isSendCvMat{false};
+    bool _isSendQImage { false };
+    bool _isSendCvMat { false };
+
+    static constexpr size_t defImages { 3 };
+    std::array<cv::Mat, defImages> _defaultMat {};
+
+    size_t _reconCounter { 0 };
 };
-
-
 
 } // namespace frame_grabber

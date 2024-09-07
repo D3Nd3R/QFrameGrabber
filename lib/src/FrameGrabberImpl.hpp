@@ -28,6 +28,8 @@ public:
     bool Start(InputInfo&& inputInfo);
     void Stop();
 
+    [[nodiscard]] bool IsConnected() const;
+
 private:
     void Worker();
 
