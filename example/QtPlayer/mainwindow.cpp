@@ -62,5 +62,5 @@ void MainWindow::on_button_clicked()
         return;
     }
 
-    _frameProvider.Start(input.toStdString());
+    std::thread { [&]() { _frameProvider.Start(input.toStdString()); } }.detach();
 }
