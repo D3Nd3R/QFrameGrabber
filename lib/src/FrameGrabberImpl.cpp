@@ -34,7 +34,8 @@ FrameGrabberImpl::~FrameGrabberImpl()
 
 void FrameGrabberImpl::SetBuffer(BufferT buffer)
 {
-    _buffer = std::move(buffer);
+    if (!_isWorking)
+        _buffer = std::move(buffer);
 }
 
 bool FrameGrabberImpl::Start()
@@ -64,7 +65,7 @@ bool FrameGrabberImpl::IsConnected() const
 void FrameGrabberImpl::Worker()
 {
     // TODO: add to settings
-    setenv("OPENCV_FFMPEG_CAPTURE_OPTIONS","rtsp_transport;tcp|fflags;nobuffer|flags;low_delay",1);
+    setenv("OPENCV_FFMPEG_CAPTURE_OPTIONS", "rtsp_transport;tcp|fflags;nobuffer|flags;low_delay", 1);
     while (_isWorking)
     {
         _badFrameCounter = maxBadFrames;

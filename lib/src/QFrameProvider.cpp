@@ -133,7 +133,7 @@ bool QFrameProvider::Start(InputInfo&& inputInfo)
     if (!_frameGrabber || !_buffer)
         return false;
 
-    Stop();
+    //Stop();
 
     _frameGrabber->SetBuffer(_buffer);
     _isWorking = true;
