@@ -47,13 +47,29 @@ void QFrameProvider::run()
 
 void QFrameProvider::PrepareDefaultImages()
 {
-    size_t cnt { 0 };
+    const cv::Size defaultSize { 1920, 1080 };
+    const cv::Point center { defaultSize / 2 };
+
+    constexpr int32_t radius { 30 };
+    const cv::Point shift { radius * 2 + 10, 0 };
+
+    const cv::Scalar white { 255, 255, 255 };
+    const cv::Scalar gray { 128, 128, 128 };
+
     for (auto& img : _defaultMat)
-    {
-        img = cv::Mat::zeros(cv::Size(1280, 960), CV_8UC3);
-        cv::putText(img, std::to_string(++cnt), cv::Point { 100, 100 }, cv::FONT_HERSHEY_PLAIN, 5,
-                    cv::Scalar(255, 255, 255));
-    }
+        img = cv::Mat::zeros(defaultSize, CV_8UC3);
+
+    cv::circle(_defaultMat[0], center - shift, radius, white, -1, cv::LINE_AA);
+    cv::circle(_defaultMat[0], center, radius, gray, -1, cv::LINE_AA);
+    cv::circle(_defaultMat[0], center + shift, radius, gray, -1, cv::LINE_AA);
+
+    cv::circle(_defaultMat[1], center - shift, radius, gray, -1, cv::LINE_AA);
+    cv::circle(_defaultMat[1], center, radius, white, -1, cv::LINE_AA);
+    cv::circle(_defaultMat[1], center + shift, radius, gray, -1, cv::LINE_AA);
+
+    cv::circle(_defaultMat[2], center - shift, radius, gray, -1, cv::LINE_AA);
+    cv::circle(_defaultMat[2], center, radius, gray, -1, cv::LINE_AA);
+    cv::circle(_defaultMat[2], center + shift, radius, white, -1, cv::LINE_AA);
 }
 
 cv::Mat QFrameProvider::SendReconImg()
