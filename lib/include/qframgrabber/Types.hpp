@@ -10,5 +10,11 @@ struct Url
 {
     std::string url;
 };
-using InputInfo = std::variant<std::monostate, int32_t, Url>;
+
+struct SharedMat
+{
+    std::string sharedMemory;
+};
+
+using InputInfo = std::variant<std::monostate, int32_t, Url, SharedMat>;
 } // namespace frame_grabber
