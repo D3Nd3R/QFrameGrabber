@@ -113,7 +113,7 @@ void FrameGrabberImpl::Worker()
                 else
                 {
                     --_badFrameCounter;
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(2));
                 }
             }
             catch (std::exception& e)
