@@ -136,12 +136,17 @@ bool FrameGrabberImpl::Reconnect()
                 if (std::get<cv::VideoCapture>(_videoCapture).open(input))
                     return true;
 
-                std::cerr << "FrameGrabberImpl::Reconnect unable to open: " << input << std::endl;
+                std::cerr << "FrameGrabberImpl::Reconnect cv::VideoCapture unable to open: " << input << std::endl;
             }
 
             if constexpr (std::is_same_v<std::decay_t<decltype(input)>, SharedMat>)
             {
-                assert(false);
+                _videoCapture.emplace<shared_cv_mat::SharedCapture>(1000);
+                if (std::get<shared_cv_mat::SharedCapture>(_videoCapture).open(input.sharedMemory))
+                    return true;
+
+                std::cerr << "FrameGrabberImpl::Reconnect shared_cv_mat::SharedCapture unable to open : "
+                          << input.sharedMemory << std::endl;
             }
 
             return false;

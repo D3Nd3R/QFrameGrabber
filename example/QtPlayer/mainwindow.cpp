@@ -60,5 +60,11 @@ void MainWindow::on_button_clicked()
             _frameProvider.Start(src);
         return;
     }
+
+    if (input == "mat_sender")
+    {
+        _frameProvider.Start(frame_grabber::SharedMat { input.toStdString() });
+        return;
+    }
     _frameProvider.Start(frame_grabber::Url { input.toStdString() });
 }
