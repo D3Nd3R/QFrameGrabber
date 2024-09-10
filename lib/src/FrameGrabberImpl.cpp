@@ -94,38 +94,36 @@ void FrameGrabberImpl::Worker()
 
 bool FrameGrabberImpl::Reconnect()
 {
-    return std::visit(meta::utils::Overload { [this](const auto& input) -> bool
-                                              {
-                                                  _videoCapture.release();
+    return std::visit(
+        [this](const auto& input) -> bool
+        {
+            _videoCapture.release();
 
-                                                  if constexpr (std::is_same_v<std::decay_t<decltype(input)>, Url>)
-                                                  {
-                                                      if (_videoCapture.open(input.url))
-                                                          return true;
+            if constexpr (std::is_same_v<std::decay_t<decltype(input)>, Url>)
+            {
+                if (_videoCapture.open(input.url))
+                    return true;
 
-                                                      std::cerr
-                                                          << "FrameGrabberImpl::Reconnect unable to open: " << input.url
-                                                          << std::endl;
-                                                  }
+                std::cerr << "FrameGrabberImpl::Reconnect unable to open: " << input.url << std::endl;
+            }
 
-                                                  if constexpr (std::is_same_v<std::decay_t<decltype(input)>, int32_t>)
-                                                  {
-                                                      if (_videoCapture.open(input))
-                                                          return true;
+            if constexpr (std::is_same_v<std::decay_t<decltype(input)>, int32_t>)
+            {
+                if (_videoCapture.open(input))
+                    return true;
 
-                                                      std::cerr
-                                                          << "FrameGrabberImpl::Reconnect unable to open: " << input
-                                                          << std::endl;
-                                                  }
+                std::cerr << "FrameGrabberImpl::Reconnect unable to open: " << input << std::endl;
+            }
 
-                                                  if constexpr (std::is_same_v<std::decay_t<decltype(input)>, Url>)
-                                                  {
-                                                      assert(false);
-                                                  }
-                                                  return false;
-                                              },
-                                              [](std::monostate) { return false; } },
-                      _inputInfo);
+            if constexpr (std::is_same_v<std::decay_t<decltype(input)>, Url>)
+            {
+                assert(false);
+            }
+
+            return false;
+        },
+
+        _inputInfo);
 }
 } // namespace frame_grabber::impl
 

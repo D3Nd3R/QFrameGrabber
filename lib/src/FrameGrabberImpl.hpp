@@ -36,6 +36,8 @@ private:
     bool Reconnect();
 
 private:
+    using CaptureT = std::variant<std::monostate, cv::VideoCapture>;
+
     cv::VideoCapture _videoCapture;
     InputInfo _inputInfo;
     BufferT _buffer;
