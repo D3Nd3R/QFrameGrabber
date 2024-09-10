@@ -18,9 +18,8 @@ MainWindow::MainWindow(QWidget* parent)
     ui->button->setText("Start");
     _frameProvider.SetSendQImage(true);
 
-    ui->lineEdit->setText("rtsp://192.168.1.152:8561/night");
+    ui->lineEdit->setText("rtsp://192.168.1.153:8561/night");
 
-    // connect(&_frameProvider, &frame_grabber::QFrameProvider::SendFrame, this, &MainWindow::OnRcvFrame);
     connect(&_frameProvider, &frame_grabber::QFrameProvider::SendImage, this, &MainWindow::OnRcvImage);
 }
 
@@ -62,5 +61,10 @@ void MainWindow::on_button_clicked()
         return;
     }
 
-    std::thread { [&]() { _frameProvider.Start(input.toStdString()); } }.detach();
+    if (input == "mat_sender")
+    {
+        _frameProvider.Start(frame_grabber::SharedMat { input.toStdString() });
+        return;
+    }
+    _frameProvider.Start(frame_grabber::Url { input.toStdString() });
 }

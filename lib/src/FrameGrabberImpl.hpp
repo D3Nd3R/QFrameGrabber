@@ -2,6 +2,7 @@
 
 #include <qframgrabber/Buffer.hpp>
 #include <qframgrabber/Types.hpp>
+#include <SharedCvMat/SharedCapture.hpp>
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/videoio/videoio.hpp>
@@ -36,7 +37,9 @@ private:
     bool Reconnect();
 
 private:
-    cv::VideoCapture _videoCapture;
+    using CaptureT = std::variant<std::monostate, cv::VideoCapture, shared_cv_mat::SharedCapture>;
+
+    CaptureT _videoCapture;
     InputInfo _inputInfo;
     BufferT _buffer;
     int32_t _badFrameCounter { 0 };

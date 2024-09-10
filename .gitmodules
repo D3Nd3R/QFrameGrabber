@@ -1,0 +1,3 @@
+[submodule "depends/sharedmat"]
+	path = depends/sharedmat
+	url = git@github.com:D3Nd3R/SharedMat.git
