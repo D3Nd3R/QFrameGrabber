@@ -6,5 +6,9 @@
 
 namespace frame_grabber
 {
-using InputInfo = std::variant<std::monostate, int32_t, std::string>;
+struct Url
+{
+    std::string url;
+};
+using InputInfo = std::variant<std::monostate, int32_t, Url>;
 } // namespace frame_grabber

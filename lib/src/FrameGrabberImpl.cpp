@@ -98,11 +98,15 @@ bool FrameGrabberImpl::Reconnect()
                                               {
                                                   _videoCapture.release();
 
-                                                  if (_videoCapture.open(input))
-                                                      return true;
+                                                  if constexpr (std::is_same_v<std::decay_t<decltype(input)>, Url>)
+                                                  {
+                                                      if (_videoCapture.open(input.url))
+                                                          return true;
 
-                                                  std::cerr << "FrameGrabberImpl::Reconnect unable to open: " << input
-                                                            << std::endl;
+                                                      std::cerr
+                                                          << "FrameGrabberImpl::Reconnect unable to open: " << input.url
+                                                          << std::endl;
+                                                  }
                                                   return false;
                                               },
                                               [](std::monostate) { return false; } },
