@@ -38,7 +38,7 @@ private:
 private:
     using CaptureT = std::variant<std::monostate, cv::VideoCapture>;
 
-    cv::VideoCapture _videoCapture;
+    CaptureT _videoCapture;
     InputInfo _inputInfo;
     BufferT _buffer;
     int32_t _badFrameCounter { 0 };

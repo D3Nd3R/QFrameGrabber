@@ -59,11 +59,27 @@ void FrameGrabberImpl::Stop()
 
 bool FrameGrabberImpl::IsConnected() const
 {
-    return _videoCapture.isOpened();
+    return std::visit(
+        [this](const auto& cap) -> bool
+        {
+            if constexpr (!std::is_same_v<std::decay_t<decltype(cap)>, std::monostate>)
+                return cap.isOpened();
+
+            return false;
+        },
+        _videoCapture);
 }
 
 void FrameGrabberImpl::Worker()
 {
+    cv::Mat frame;
+    auto reader = [this, &frame](auto& cap) -> bool
+    {
+        if constexpr (!std::is_same_v<std::decay_t<decltype(cap)>, std::monostate>)
+            return cap.read(frame);
+
+        return false;
+    };
     // TODO: add to settings
     setenv("OPENCV_FFMPEG_CAPTURE_OPTIONS", "rtsp_transport;tcp|fflags;nobuffer|flags;low_delay", 1);
     while (_isWorking)
@@ -76,10 +92,10 @@ void FrameGrabberImpl::Worker()
         }
         while (_isWorking && _badFrameCounter > 0)
         {
-            if (!_videoCapture.isOpened()) [[unlikely]]
+            if (!IsConnected()) [[unlikely]]
                 break;
 
-            if (cv::Mat frame; _videoCapture.read(frame)) // cpp20[[likely]]
+            if (std::visit(reader, _videoCapture)) // cpp20[[likely]]
             {
                 _badFrameCounter = maxBadFrames;
                 _buffer->Emplace(std::move(frame));
@@ -97,11 +113,18 @@ bool FrameGrabberImpl::Reconnect()
     return std::visit(
         [this](const auto& input) -> bool
         {
-            _videoCapture.release();
+            std::visit(
+                [this](auto& cap) -> void
+                {
+                    if constexpr (!std::is_same_v<std::decay_t<decltype(cap)>, std::monostate>)
+                        cap.release();
+                },
+                _videoCapture);
 
             if constexpr (std::is_same_v<std::decay_t<decltype(input)>, Url>)
             {
-                if (_videoCapture.open(input.url))
+                _videoCapture.emplace<cv::VideoCapture>();
+                if (std::get<cv::VideoCapture>(_videoCapture).open(input.url))
                     return true;
 
                 std::cerr << "FrameGrabberImpl::Reconnect unable to open: " << input.url << std::endl;
@@ -109,13 +132,14 @@ bool FrameGrabberImpl::Reconnect()
 
             if constexpr (std::is_same_v<std::decay_t<decltype(input)>, int32_t>)
             {
-                if (_videoCapture.open(input))
+                _videoCapture.emplace<cv::VideoCapture>();
+                if (std::get<cv::VideoCapture>(_videoCapture).open(input))
                     return true;
 
                 std::cerr << "FrameGrabberImpl::Reconnect unable to open: " << input << std::endl;
             }
 
-            if constexpr (std::is_same_v<std::decay_t<decltype(input)>, Url>)
+            if constexpr (std::is_same_v<std::decay_t<decltype(input)>, SharedMat>)
             {
                 assert(false);
             }
