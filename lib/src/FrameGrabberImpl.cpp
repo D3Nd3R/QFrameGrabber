@@ -18,7 +18,7 @@ FrameGrabberImpl::FrameGrabberImpl(InputInfo inputInfo)
 {
 }
 
-FrameGrabberImpl::FrameGrabberImpl() {}
+FrameGrabberImpl::FrameGrabberImpl() = default;
 
 bool FrameGrabberImpl::Start(InputInfo&& inputInfo)
 {
@@ -59,15 +59,23 @@ void FrameGrabberImpl::Stop()
 
 bool FrameGrabberImpl::IsConnected() const
 {
-    return std::visit(
-        [this](const auto& cap) -> bool
-        {
-            if constexpr (!std::is_same_v<std::decay_t<decltype(cap)>, std::monostate>)
-                return cap.isOpened();
+    try
+    {
+        return std::visit(
+            [this](const auto& cap) -> bool
+            {
+                if constexpr (!std::is_same_v<std::decay_t<decltype(cap)>, std::monostate>)
+                    return cap.isOpened();
 
-            return false;
-        },
-        _videoCapture);
+                return false;
+            },
+            _videoCapture);
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+    return false;
 }
 
 void FrameGrabberImpl::Worker()
@@ -95,14 +103,22 @@ void FrameGrabberImpl::Worker()
             if (!IsConnected()) [[unlikely]]
                 break;
 
-            if (std::visit(reader, _videoCapture)) // cpp20[[likely]]
+            try
             {
-                _badFrameCounter = maxBadFrames;
-                _buffer->Emplace(std::move(frame));
+                if (std::visit(reader, _videoCapture)) // cpp20[[likely]]
+                {
+                    _badFrameCounter = maxBadFrames;
+                    _buffer->Emplace(std::move(frame));
+                }
+                else
+                {
+                    --_badFrameCounter;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                }
             }
-            else
+            catch (std::exception& e)
             {
-                --_badFrameCounter;
+                std::cerr << e.what() << std::endl;
             }
         }
     }
@@ -110,49 +126,56 @@ void FrameGrabberImpl::Worker()
 
 bool FrameGrabberImpl::Reconnect()
 {
-    return std::visit(
-        [this](const auto& input) -> bool
-        {
-            std::visit(
-                [this](auto& cap) -> void
+    try
+    {
+        return std::visit(
+            [this](const auto& input) -> bool
+            {
+                std::visit(
+                    [this](auto& cap) -> void
+                    {
+                        if constexpr (!std::is_same_v<std::decay_t<decltype(cap)>, std::monostate>)
+                            cap.release();
+                    },
+                    _videoCapture);
+
+                if constexpr (std::is_same_v<std::decay_t<decltype(input)>, Url>)
                 {
-                    if constexpr (!std::is_same_v<std::decay_t<decltype(cap)>, std::monostate>)
-                        cap.release();
-                },
-                _videoCapture);
+                    _videoCapture.emplace<cv::VideoCapture>();
+                    if (std::get<cv::VideoCapture>(_videoCapture).open(input.url))
+                        return true;
 
-            if constexpr (std::is_same_v<std::decay_t<decltype(input)>, Url>)
-            {
-                _videoCapture.emplace<cv::VideoCapture>();
-                if (std::get<cv::VideoCapture>(_videoCapture).open(input.url))
-                    return true;
+                    std::cerr << "FrameGrabberImpl::Reconnect unable to open: " << input.url << std::endl;
+                }
 
-                std::cerr << "FrameGrabberImpl::Reconnect unable to open: " << input.url << std::endl;
-            }
+                if constexpr (std::is_same_v<std::decay_t<decltype(input)>, int32_t>)
+                {
+                    _videoCapture.emplace<cv::VideoCapture>();
+                    if (std::get<cv::VideoCapture>(_videoCapture).open(input))
+                        return true;
 
-            if constexpr (std::is_same_v<std::decay_t<decltype(input)>, int32_t>)
-            {
-                _videoCapture.emplace<cv::VideoCapture>();
-                if (std::get<cv::VideoCapture>(_videoCapture).open(input))
-                    return true;
+                    std::cerr << "FrameGrabberImpl::Reconnect cv::VideoCapture unable to open: " << input << std::endl;
+                }
 
-                std::cerr << "FrameGrabberImpl::Reconnect cv::VideoCapture unable to open: " << input << std::endl;
-            }
+                if constexpr (std::is_same_v<std::decay_t<decltype(input)>, SharedMat>)
+                {
+                    _videoCapture.emplace<shared_cv_mat::SharedCapture>(1000);
+                    if (std::get<shared_cv_mat::SharedCapture>(_videoCapture).open(input.sharedMemory))
+                        return true;
 
-            if constexpr (std::is_same_v<std::decay_t<decltype(input)>, SharedMat>)
-            {
-                _videoCapture.emplace<shared_cv_mat::SharedCapture>(1000);
-                if (std::get<shared_cv_mat::SharedCapture>(_videoCapture).open(input.sharedMemory))
-                    return true;
+                    std::cerr << "FrameGrabberImpl::Reconnect shared_cv_mat::SharedCapture unable to open : "
+                              << input.sharedMemory << std::endl;
+                }
 
-                std::cerr << "FrameGrabberImpl::Reconnect shared_cv_mat::SharedCapture unable to open : "
-                          << input.sharedMemory << std::endl;
-            }
-
-            return false;
-        },
-
-        _inputInfo);
+                return false;
+            },
+            _inputInfo);
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+    return false;
 }
 } // namespace frame_grabber::impl
 
